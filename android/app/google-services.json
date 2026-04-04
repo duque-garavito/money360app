@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "635327572596",
+    "project_id": "money360-ce04b",
+    "storage_bucket": "money360-ce04b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635327572596:android:c711f445cc7b38bc933f21",
+        "android_client_info": {
+          "package_name": "com.example.money360"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "635327572596-6hhqr4s2fn0ddadb9fnd8confklilqbq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.money360",
+            "certificate_hash": "187dba9f15dcdc94ae50f9c8902ac9f128296064"
+          }
+        },
+        {
+          "client_id": "635327572596-nq2c6em91pelad98g9d68sdrqs4ggt8u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxp93waL7_1EbTX6_jTcGzDWOSWFlalMo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "635327572596-nq2c6em91pelad98g9d68sdrqs4ggt8u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
