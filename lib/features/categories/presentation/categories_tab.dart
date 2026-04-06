@@ -17,16 +17,26 @@ class CategoriesTab extends ConsumerWidget {
       backgroundColor: Colors.transparent, 
       body: categoriesAsync.when(
         data: (categories) {
-          return ListView.builder(
+          final incomes = categories.where((c) => c.type == 'income').toList();
+          final expenses = categories.where((c) => c.type == 'expense').toList();
+
+          return ListView(
             padding: const EdgeInsets.all(16.0).copyWith(bottom: 120, top: 16),
-            itemCount: categories.length + 1,
-            itemBuilder: (context, index) {
-              if (index == categories.length) {
-                return _buildAddCategoryButton(context, isDark);
-              }
-              final category = categories[index];
-              return _buildCategoryCard(context, category, isDark);
-            },
+            children: [
+              if (incomes.isNotEmpty) ...[
+                Text('Ingresos', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.green)),
+                const SizedBox(height: 12),
+                ...incomes.map((c) => _buildCategoryCard(context, c, isDark)),
+                const SizedBox(height: 20),
+              ],
+              if (expenses.isNotEmpty) ...[
+                Text('Gastos', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.red)),
+                const SizedBox(height: 12),
+                ...expenses.map((c) => _buildCategoryCard(context, c, isDark)),
+              ],
+              const SizedBox(height: 24),
+              _buildAddCategoryButton(context, isDark),
+            ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator(color: Colors.greenAccent)),

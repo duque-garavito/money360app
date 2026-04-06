@@ -24,13 +24,19 @@ class NotificationParserService {
 
   static double? extractAmountFromPlin(ServiceNotificationEvent event) {
     // Plin usualmente viene desde Interbank, Scotiabank o BBVA
-    // Para simplificar, buscaremos la palabra "Plin" en el título o cuerpo
-    final title = event.title?.toLowerCase() ?? '';
-    final text = event.content?.toLowerCase() ?? '';
+    // Solo procesar notificaciones de INGRESO, ignorar envíos propios
+    // Yape usa palabras como "recibiste", "te enviaron", "te pagaron", "te envió"
+    final fullText = '${event.title} ${event.content}'.toLowerCase();
+    final isIncoming = fullText.contains('recibiste') ||
+        fullText.contains('te enviaron') ||
+        fullText.contains('te envi') || // Cubre "te envió" ignorando tildes raras
+        fullText.contains('te pagaron') ||
+        fullText.contains('te transfirieron') ||
+        fullText.contains('recibido');
 
-    if (title.contains('plin') || text.contains('plin')) {
+    if (isIncoming && (fullText.contains('plin'))) {
       final regex = RegExp(r's/ ?([0-9]+(\.[0-9]{1,2})?)');
-      final match = regex.firstMatch(text);
+      final match = regex.firstMatch(fullText);
       if (match != null && match.groupCount >= 1) {
         final amountStr = match.group(1);
         if (amountStr != null) {

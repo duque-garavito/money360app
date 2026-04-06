@@ -33,6 +33,8 @@ class NotificationService {
     final isGranted = await NotificationListenerService.isPermissionGranted();
     ref.read(isNotificationPermissionGrantedProvider.notifier).setGranted(isGranted);
 
+
+
     if (isGranted) {
       _isInitialized = true;
       NotificationListenerService.notificationsStream.listen((event) {
@@ -49,14 +51,7 @@ class NotificationService {
     final userId = ref.read(userIdProvider);
     if (userId == null) return;
     
-    // DEBUG: Dump raw notification to firestore
-    try {
-      ref.read(firestoreRepositoryProvider).logDebugEvent(userId, {
-        'package': event.packageName ?? 'unknown',
-        'title': event.title ?? 'none',
-        'content': event.content ?? 'none',
-      });
-    } catch(e) {}
+
 
     double? amountYape = NotificationParserService.extractAmountFromYape(event);
     double? amountPlin = NotificationParserService.extractAmountFromPlin(event);
@@ -94,7 +89,7 @@ class NotificationService {
         description: 'Recibido por $providerName ($senderInfo)',
         accountId: digitalAccount.id,
         categoryId: catId,
-        date: DateTime.now().toIso8601String(),
+        date: DateTime.now().toIso8601String().split('T')[0], // Exactamente YYYY-MM-DD
         createdAt: DateTime.now(),
       );
 
