@@ -43,24 +43,31 @@ class DashboardScreen extends ConsumerWidget {
       const CategoriesTab(),
     ];
 
-    return Scaffold(
-      extendBody: true, // Deja que el contenido pase por debajo del bottom bar flotante
-      backgroundColor: isDark ? const Color(0xFF101418) : const Color(0xFFF4F7FA),
-      appBar: AppBar(
-        title: const Text('Money360', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_rounded),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
-            },
-          )
-        ],
-      ),
-      body: screens[currentIndex],
-      bottomNavigationBar: Container(
+    return PopScope(
+      canPop: currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          ref.read(bottomNavIndexProvider.notifier).setIndex(0);
+        }
+      },
+      child: Scaffold(
+        extendBody: true, // Deja que el contenido pase por debajo del bottom bar flotante
+        backgroundColor: isDark ? const Color(0xFF101418) : const Color(0xFFF4F7FA),
+        appBar: AppBar(
+          title: const Text('Money360', style: TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings_rounded),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+              },
+            )
+          ],
+        ),
+        body: screens[currentIndex],
+        bottomNavigationBar: Container(
         margin: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
         decoration: BoxDecoration(
           color: isDark ? Colors.white.withOpacity(0.08) : Colors.white.withOpacity(0.8),
@@ -108,10 +115,11 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
+          ), 
+        ), 
+      ), 
+    ),
+  );
   }
 }
 

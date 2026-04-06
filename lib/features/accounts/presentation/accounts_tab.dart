@@ -174,6 +174,11 @@ class _AddAccountFormState extends ConsumerState<_AddAccountForm> {
       _balanceCtrl.text = widget.initialData!.balance.toString();
       _type = widget.initialData!.type;
       _color = widget.initialData!.color;
+      
+      // Prevención de Crash de Dropdown por datos desincronizados
+      if (!['cash', 'bank', 'credit', 'saving', 'digital'].contains(_type)) {
+        _type = 'bank';
+      }
     } else {
       _type = 'bank';
       _color = '#2196f3';

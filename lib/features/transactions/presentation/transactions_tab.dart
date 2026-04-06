@@ -68,6 +68,41 @@ class TransactionsTab extends ConsumerWidget {
       typeColor = Colors.redAccent[400]!;
     }
 
+    final accounts = ref.watch(accountsStreamProvider).value ?? [];
+    final categories = ref.watch(categoriesStreamProvider).value ?? [];
+
+    String accountName = 'Cuenta';
+    try {
+      accountName = accounts.firstWhere((a) => a.id == transaction.accountId).name;
+    } catch (_) {}
+
+    String categoryOrTarget = '';
+    if (isTransfer) {
+      try {
+        final targetAcc = accounts.firstWhere((a) => a.id == transaction.categoryId).name;
+        categoryOrTarget = 'hacia $targetAcc';
+      } catch (_) {}
+    } else {
+      try {
+        final cat = categories.firstWhere((c) => c.id == transaction.categoryId).name;
+        categoryOrTarget = cat;
+      } catch (_) {}
+    }
+
+    String displayDate = transaction.date;
+    String timeStr = '';
+    try {
+      final parsed = DateTime.parse(transaction.date).toLocal();
+      displayDate = '${parsed.day.toString().padLeft(2, '0')}/${parsed.month.toString().padLeft(2, '0')}/${parsed.year}';
+      
+      final dt = transaction.createdAt.toLocal();
+      final h = dt.hour.toString().padLeft(2, '0');
+      final m = dt.minute.toString().padLeft(2, '0');
+      timeStr = '$h:$m';
+    } catch (_) {
+      if (displayDate.length >= 10) displayDate = displayDate.substring(0, 10);
+    }
+
     return Dismissible(
       key: Key(transaction.id),
       direction: DismissDirection.endToStart,
@@ -149,9 +184,36 @@ class TransactionsTab extends ConsumerWidget {
               transaction.description.isNotEmpty ? transaction.description : (isTransfer ? 'Transferencia' : 'Transacción'),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(
-              transaction.date.toString().split(' ')[0], // Simple YYYY-MM-DD
-              style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600], fontSize: 12),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today_rounded, size: 12, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                    const SizedBox(width: 4),
+                    Text(timeStr.isEmpty ? displayDate : '$displayDate • $timeStr', style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600], fontSize: 12)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.account_balance_wallet_rounded, size: 12, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(accountName, style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600], fontSize: 12), overflow: TextOverflow.ellipsis),
+                    ),
+                    if (categoryOrTarget.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      Icon(isTransfer ? Icons.arrow_forward_rounded : Icons.label_outline_rounded, size: 12, color: isDark ? Colors.grey[500] : Colors.grey[500]),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(categoryOrTarget, style: TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[500], fontSize: 12, fontStyle: FontStyle.italic), overflow: TextOverflow.ellipsis),
+                      ),
+                    ]
+                  ],
+                ),
+              ],
             ),
             trailing: Text(
               '${isIncome ? '+' : (isTransfer ? '' : '-')}${CurrencyFormatter.format(transaction.amount)}',

@@ -252,23 +252,23 @@ class FirestoreRepository {
         .delete();
   }
 
-  // PELIGRO: Borrar todos los datos de usuario
-  Future<void> clearAllData(String userId) async {
+  // PELIGRO: Borrar datos de usuario selectivamente
+  Future<void> clearData(String userId, {bool clearTransactions = false, bool clearAccounts = false, bool clearCategories = false}) async {
     final batch = _firestore.batch();
     
-    final txs = await _firestore.collection('users').doc(userId).collection('transactions').get();
-    for (var doc in txs.docs) {
-      batch.delete(doc.reference);
+    if (clearTransactions) {
+      final txs = await _firestore.collection('users').doc(userId).collection('transactions').get();
+      for (var doc in txs.docs) batch.delete(doc.reference);
     }
     
-    final accs = await _firestore.collection('users').doc(userId).collection('accounts').get();
-    for (var doc in accs.docs) {
-      batch.delete(doc.reference);
+    if (clearAccounts) {
+      final accs = await _firestore.collection('users').doc(userId).collection('accounts').get();
+      for (var doc in accs.docs) batch.delete(doc.reference);
     }
 
-    final cats = await _firestore.collection('users').doc(userId).collection('categories').get();
-    for (var doc in cats.docs) {
-      batch.delete(doc.reference);
+    if (clearCategories) {
+      final cats = await _firestore.collection('users').doc(userId).collection('categories').get();
+      for (var doc in cats.docs) batch.delete(doc.reference);
     }
 
     await batch.commit();

@@ -37,39 +37,78 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _confirmClearData() {
+    bool clrTxs = true;
+    bool clrAccounts = true;
+    bool clrCats = true;
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('⚠️ Peligro: Vaciar todo'),
-        content: const Text(
-          '¿Estás seguro de que quieres eliminar TODAS tus cuentas, categorías y transacciones de forma permanente? Esta acción no se puede deshacer.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final userId = ref.read(userIdProvider);
-              if (userId != null) {
-                try {
-                  await ref.read(firestoreRepositoryProvider).clearAllData(userId);
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bóveda limpiada correctamente')));
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setStateSB) {
+          return AlertDialog(
+            title: const Text('⚠️ Peligro: Vaciar registros'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Selecciona exactamente qué datos deseas eliminar de forma permanente. Esta acción no se puede deshacer.'),
+                const SizedBox(height: 16),
+                CheckboxListTile(
+                  title: const Text('Movimientos y transacciones'),
+                  value: clrTxs,
+                  onChanged: (val) => setStateSB(() => clrTxs = val!),
+                  activeColor: Colors.redAccent,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                CheckboxListTile(
+                  title: const Text('Cuentas y billeteras'),
+                  value: clrAccounts,
+                  onChanged: (val) => setStateSB(() => clrAccounts = val!),
+                  activeColor: Colors.redAccent,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                CheckboxListTile(
+                  title: const Text('Etiquetas y Categorías'),
+                  value: clrCats,
+                  onChanged: (val) => setStateSB(() => clrCats = val!),
+                  activeColor: Colors.redAccent,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+                onPressed: (!clrTxs && !clrAccounts && !clrCats) ? null : () async {
+                  Navigator.pop(ctx);
+                  final userId = ref.read(userIdProvider);
+                  if (userId != null) {
+                    try {
+                      await ref.read(firestoreRepositoryProvider).clearData(
+                        userId,
+                        clearTransactions: clrTxs,
+                        clearAccounts: clrAccounts,
+                        clearCategories: clrCats,
+                      );
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bóveda limpiada correctamente')));
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al limpiar: $e')));
+                      }
+                    }
                   }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al limpiar: $e')));
-                  }
-                }
-              }
-            },
-            child: const Text('Borrar Todo'),
-          ),
-        ],
+                },
+                child: const Text('Borrar Selección'),
+              ),
+            ],
+          );
+        }
       ),
     );
   }
